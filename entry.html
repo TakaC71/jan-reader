@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>記帳フォーム</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h2>📋 記帳フォーム</h2>
+  <form id="entry-form">
+    <div>商品名: <span id="product-name"></span></div>
+    <div>JANコード: <span id="jan-code"></span></div>
+    <label>個数: <input type="number" name="quantity" required></label><br>
+    <label>仕入れ金額: <input type="number" name="price" required></label><br>
+    <label>仕入れ先: <input type="text" name="source" required></label><br>
+    <button type="submit">記録</button>
+  </form>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    document.getElementById('product-name').textContent = params.get('name');
+    document.getElementById('jan-code').textContent = params.get('jan');
+  </script>
+</body>
+</html>

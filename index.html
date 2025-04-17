@@ -1,40 +1,20 @@
-
 <!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>JANコード読み取り</title>
+  <title>JAN読み取り一覧</title>
   <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
-  <style>
-    body { font-family: sans-serif; text-align: center; padding: 1em; }
-    #reader { width: 100%; max-width: 400px; margin: auto; }
-    #result { font-size: 1.5em; margin-top: 1em; color: green; }
-  </style>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h2>📷 JANコード読み取り</h2>
-  <div id="reader"></div>
-  <div id="result">JANコードを読み取ってください</div>
+  <h2>📷 JAN読み取り</h2>
+  <button onclick="startScanner()">JANを読む</button>
+  <div id="reader" style="width: 100%; max-width: 400px; margin: auto;"></div>
+  <div id="scan-result"></div>
 
-  <script>
-    function onScanSuccess(decodedText, decodedResult) {
-      document.getElementById('result').innerText = "JAN読み取り成功: " + decodedText;
-      html5QrcodeScanner.clear();
-    }
+  <h3>📋 読み取り一覧（新しい順）</h3>
+  <ul id="item-list"></ul>
 
-    function onScanFailure(error) {
-      // 読み取り失敗時は無視
-    }
-
-    let html5QrcodeScanner = new Html5QrcodeScanner(
-      "reader", {
-        fps: 10,
-        qrbox: { width: 300, height: 100 },
-        formatsToSupport: [ Html5QrcodeSupportedFormats.EAN_13 ]
-      },
-      false
-    );
-    html5QrcodeScanner.render(onScanSuccess, onScanFailure);
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>
