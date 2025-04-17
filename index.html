@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>JANコード読み取り</title>
+  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+  <style>
+    body { font-family: sans-serif; text-align: center; padding: 1em; }
+    #reader { width: 100%; max-width: 400px; margin: auto; }
+    #result { font-size: 1.5em; margin-top: 1em; color: green; }
+  </style>
+</head>
+<body>
+  <h2>📷 JANコード読み取り</h2>
+  <div id="reader"></div>
+  <div id="result">JANコードを読み取ってください</div>
+
+  <script>
+    function onScanSuccess(decodedText, decodedResult) {
+      document.getElementById('result').innerText = "読み取り成功: " + decodedText;
+      html5QrcodeScanner.clear();
+    }
+
+    function onScanFailure(error) {
+      // 読み取り失敗時の処理（無視）
+    }
+
+    let html5QrcodeScanner = new Html5QrcodeScanner(
+      "reader", { fps: 10, qrbox: 250 }, false);
+    html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+  </script>
+</body>
+</html>
