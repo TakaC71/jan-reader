@@ -1,79 +1,79 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <title>JANコード読み取り - 全画面</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>JANコード読み取り</title>
+  <link rel="stylesheet" href="style.css" />
   <style>
-    html, body {
+    body, html {
       margin: 0;
       padding: 0;
       overflow: hidden;
-      height: 100%;
       background: black;
     }
     #reader {
-      position: fixed;
-      top: 0;
-      left: 0;
       width: 100vw;
       height: 100vh;
+      position: relative;
     }
     #overlay {
-      position: fixed;
-      bottom: 0;
-      width: 100%;
-      background: rgba(0, 0, 0, 0.6);
-      color: white;
-      font-size: 1.5em;
-      padding: 10px;
-      text-align: center;
-      z-index: 10;
-    }
-    button {
-      position: fixed;
+      position: absolute;
       top: 10px;
-      right: 10px;
-      padding: 10px 15px;
-      font-size: 1em;
+      left: 0;
+      width: 100%;
+      text-align: center;
+      font-size: 1.2em;
+      color: lime;
+      text-shadow: 1px 1px 4px black;
       z-index: 10;
+      pointer-events: none;
     }
   </style>
+  <script src="https://unpkg.com/html5-qrcode"></script>
 </head>
 <body>
   <div id="reader"></div>
-  <div id="overlay">📡 スキャン待機中...</div>
-  <button onclick="window.close()">✖ 閉じる</button>
+  <div id="overlay">読み取り中...</div>
 
   <script>
-    let lastScanned = "";
-    const overlay = document.getElementById("overlay");
+    let lastScannedCode = "";
 
-    function onScanSuccess(decodedText) {
-      if (decodedText === lastScanned) return;
-      lastScanned = decodedText;
-      overlay.textContent = `✅ ${decodedText} を読み取りました`;
+    function onScanSuccess(decodedText, decodedResult) {
+      if (decodedText === lastScannedCode) return;
+      lastScannedCode = decodedText;
 
-      // 仮の商品名をローカル保存
-      const list = JSON.parse(localStorage.getItem("janList") || "[]");
-      if (!list.find(item => item.jan === decodedText)) {
-        list.unshift({ jan: decodedText, name: "商品_" + decodedText.slice(-4) });
-        localStorage.setItem("janList", JSON.stringify(list));
-      }
+      document.getElementById("overlay").innerText = `${decodedText} を読み取りました`;
+
+      // 一覧に戻るなどの処理はここで
+      setTimeout(() => {
+        lastScannedCode = "";
+        document.getElementById("overlay").innerText = "読み取り中...";
+      }, 3000);
+
+      // 今後：window.opener.postMessage() などで親に渡して閉じることも可
     }
 
     const html5QrCode = new Html5Qrcode("reader");
-    html5QrCode.start(
-      { facingMode: "environment" },
-      {
-        fps: 10,
-        qrbox: { width: 350, height: 80 },  // ⬅ 横長の読み取り枠
-        formatsToSupport: [ Html5QrcodeSupportedFormats.EAN_13 ]
-      },
-      onScanSuccess,
-      (errorMessage) => {}  // 無視
-    );
+    const config = {
+      fps: 10,
+      qrbox: { width: 250, height: 100 },
+      aspectRatio: 1.77
+    };
+
+    Html5Qrcode.getCameras().then(devices => {
+      if (devices && devices.length) {
+        const backCamera = devices.find(d => d.label.toLowerCase().includes("back")) || devices[0];
+        html5QrCode.start(
+          { deviceId: { exact: backCamera.id } },
+          config,
+          onScanSuccess
+        );
+      }
+    }).catch(err => {
+      document.getElementById("overlay").innerText = "カメラの起動に失敗しました";
+      console.error(err);
+    });
   </script>
 </body>
 </html>
