@@ -1,15 +1,1 @@
-body {
-  font-family: sans-serif;
-  padding: 1em;
-}
-button {
-  padding: 10px 20px;
-  margin-bottom: 1em;
-}
-#reader {
-  margin-bottom: 1em;
-}
-#item-list li {
-  border-bottom: 1px solid #ccc;
-  padding: 0.5em 0;
-}
+...
