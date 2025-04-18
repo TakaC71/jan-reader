@@ -1,1 +1,25 @@
-...
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>記帳フォーム</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h1>✏️ 商品記帳</h1>
+  <form id="entry-form">
+    <label>商品名: <input type="text" id="name" required /></label><br />
+    <label>個数: <input type="number" id="qty" required /></label><br />
+    <label>仕入金額: <input type="number" id="price" required /></label><br />
+    <label>仕入先: <input type="text" id="source" /></label><br />
+    <button type="submit">💾 記帳する</button>
+  </form>
+  <script>
+    document.getElementById("entry-form").onsubmit = (e) => {
+      e.preventDefault();
+      alert("記帳しました！");
+      window.location.href = "index.html";
+    };
+  </script>
+</body>
+</html>
