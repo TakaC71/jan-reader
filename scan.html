@@ -2,29 +2,46 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>JANコード読み取りテスト</title>
+  <title>JANコード読み取り - 全画面</title>
   <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
   <style>
-    body { font-family: sans-serif; text-align: center; margin: 0; padding: 1em; }
-    #reader { width: 90%; max-width: 400px; margin: auto; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      height: 100%;
+    }
+    #reader {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+    }
     #overlay {
-      position: absolute;
+      position: fixed;
       bottom: 0;
       width: 100%;
-      background: rgba(0,0,0,0.7);
+      background: rgba(0, 0, 0, 0.6);
       color: white;
-      font-size: 1.2em;
+      font-size: 1.5em;
       padding: 10px;
+      text-align: center;
+    }
+    button {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      padding: 10px;
+      font-size: 1em;
+      z-index: 10;
     }
   </style>
 </head>
 <body>
-  <h2>📷 JANコード読み取りテスト</h2>
-  <div style="position: relative;">
-    <div id="reader"></div>
-    <div id="overlay">📡 スキャン待機中...</div>
-  </div>
-  <button onclick="location.reload()">🔄 リセット</button>
+  <div id="reader"></div>
+  <div id="overlay">📡 スキャン待機中...</div>
+  <button onclick="window.close()">✖ 閉じる</button>
 
   <script>
     let lastScanned = "";
@@ -35,7 +52,7 @@
       lastScanned = decodedText;
       overlay.textContent = `✅ ${decodedText} を読み取りました`;
 
-      // デモ用にローカル保存（仮の商品名を追加）
+      // 仮の商品名保存
       const list = JSON.parse(localStorage.getItem("janList") || "[]");
       if (!list.find(item => item.jan === decodedText)) {
         list.unshift({ jan: decodedText, name: "商品_" + decodedText.slice(-4) });
