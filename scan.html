@@ -2,15 +2,16 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
-  <title>JANコード読み取り (Quagga.js)</title>
+  <title>JANコード読み取り (Quagga.js 限定エリア)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
   <style>
-    body, html {
+    html, body {
       margin: 0;
       padding: 0;
       overflow: hidden;
       background-color: black;
+      height: 100%;
     }
     #interactive {
       width: 100vw;
@@ -23,10 +24,20 @@
       width: 100%;
       background: rgba(0, 0, 0, 0.6);
       color: lime;
-      font-size: 1.2rem;
+      font-size: 1rem;
       padding: 10px;
       text-align: center;
       z-index: 10;
+    }
+    #scan-box {
+      position: absolute;
+      top: 40%;
+      left: 20%;
+      width: 60%;
+      height: 20%;
+      border: 2px solid lime;
+      z-index: 10;
+      pointer-events: none;
     }
     canvas.drawing, video {
       position: absolute;
@@ -38,6 +49,7 @@
 <body>
   <div id="interactive" class="viewport"></div>
   <div id="overlay">📡 読み取り中...</div>
+  <div id="scan-box"></div>
 
   <script>
     let lastScanned = "";
@@ -55,7 +67,13 @@
           }
         },
         decoder: {
-          readers: ["ean_reader"]  // JANコード（EAN-13）対応
+          readers: ["ean_reader"],
+          area: {
+            top: "40%",
+            right: "80%",
+            left: "20%",
+            bottom: "60%"
+          }
         },
         locate: true
       }, function(err) {
@@ -72,7 +90,6 @@
         if (code === lastScanned) return;
         lastScanned = code;
 
-        // 表示とlocalStorage保存
         document.getElementById("overlay").textContent = `✅ ${code} を読み取りました`;
 
         const list = JSON.parse(localStorage.getItem("janList") || "[]");
