@@ -4,13 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>JANコード読み取り</title>
-  <link rel="stylesheet" href="style.css" />
+  <script src="https://unpkg.com/html5-qrcode"></script>
   <style>
     body, html {
       margin: 0;
       padding: 0;
-      overflow: hidden;
       background: black;
+      overflow: hidden;
     }
     #reader {
       width: 100vw;
@@ -19,18 +19,16 @@
     }
     #overlay {
       position: absolute;
-      top: 10px;
-      left: 0;
+      top: 1rem;
       width: 100%;
       text-align: center;
-      font-size: 1.2em;
       color: lime;
-      text-shadow: 1px 1px 4px black;
+      font-size: 1.2rem;
+      text-shadow: 1px 1px 3px black;
       z-index: 10;
       pointer-events: none;
     }
   </style>
-  <script src="https://unpkg.com/html5-qrcode"></script>
 </head>
 <body>
   <div id="reader"></div>
@@ -39,39 +37,31 @@
   <script>
     let lastScannedCode = "";
 
-    function onScanSuccess(decodedText, decodedResult) {
+    const onScanSuccess = (decodedText) => {
       if (decodedText === lastScannedCode) return;
       lastScannedCode = decodedText;
 
-      document.getElementById("overlay").innerText = `${decodedText} を読み取りました`;
+      document.getElementById("overlay").innerText = `✅ ${decodedText} を読み取りました`;
 
-      // 一覧に戻るなどの処理はここで
       setTimeout(() => {
         lastScannedCode = "";
         document.getElementById("overlay").innerText = "読み取り中...";
       }, 3000);
-
-      // 今後：window.opener.postMessage() などで親に渡して閉じることも可
-    }
+    };
 
     const html5QrCode = new Html5Qrcode("reader");
     const config = {
       fps: 10,
-      qrbox: { width: 250, height: 100 },
+      qrbox: { width: 250, height: 100 },  // 横長
       aspectRatio: 1.77
     };
 
-    Html5Qrcode.getCameras().then(devices => {
-      if (devices && devices.length) {
-        const backCamera = devices.find(d => d.label.toLowerCase().includes("back")) || devices[0];
-        html5QrCode.start(
-          { deviceId: { exact: backCamera.id } },
-          config,
-          onScanSuccess
-        );
-      }
-    }).catch(err => {
-      document.getElementById("overlay").innerText = "カメラの起動に失敗しました";
+    html5QrCode.start(
+      { facingMode: "environment" },  // 背面カメラ指定
+      config,
+      onScanSuccess
+    ).catch(err => {
+      document.getElementById("overlay").innerText = "❌ カメラ起動失敗";
       console.error(err);
     });
   </script>
