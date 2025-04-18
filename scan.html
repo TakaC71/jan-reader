@@ -2,68 +2,93 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
+  <title>JANコード読み取り (Quagga.js)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>JANコード読み取り</title>
-  <script src="https://unpkg.com/html5-qrcode"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
   <style>
     body, html {
       margin: 0;
       padding: 0;
-      background: black;
       overflow: hidden;
+      background-color: black;
     }
-    #reader {
+    #interactive {
       width: 100vw;
       height: 100vh;
       position: relative;
     }
     #overlay {
       position: absolute;
-      top: 1rem;
+      bottom: 0;
       width: 100%;
-      text-align: center;
+      background: rgba(0, 0, 0, 0.6);
       color: lime;
       font-size: 1.2rem;
-      text-shadow: 1px 1px 3px black;
+      padding: 10px;
+      text-align: center;
       z-index: 10;
-      pointer-events: none;
+    }
+    canvas.drawing, video {
+      position: absolute;
+      top: 0;
+      left: 0;
     }
   </style>
 </head>
 <body>
-  <div id="reader"></div>
-  <div id="overlay">読み取り中...</div>
+  <div id="interactive" class="viewport"></div>
+  <div id="overlay">📡 読み取り中...</div>
 
   <script>
-    let lastScannedCode = "";
+    let lastScanned = "";
 
-    const onScanSuccess = (decodedText) => {
-      if (decodedText === lastScannedCode) return;
-      lastScannedCode = decodedText;
+    function startScanner() {
+      Quagga.init({
+        inputStream: {
+          name: "Live",
+          type: "LiveStream",
+          target: document.querySelector('#interactive'),
+          constraints: {
+            width: { ideal: 1280 },
+            height: { ideal: 720 },
+            facingMode: "environment"
+          }
+        },
+        decoder: {
+          readers: ["ean_reader"]  // JANコード（EAN-13）対応
+        },
+        locate: true
+      }, function(err) {
+        if (err) {
+          console.error(err);
+          document.getElementById("overlay").textContent = "❌ カメラ起動に失敗";
+          return;
+        }
+        Quagga.start();
+      });
 
-      document.getElementById("overlay").innerText = `✅ ${decodedText} を読み取りました`;
+      Quagga.onDetected(function(result) {
+        const code = result.codeResult.code;
+        if (code === lastScanned) return;
+        lastScanned = code;
 
-      setTimeout(() => {
-        lastScannedCode = "";
-        document.getElementById("overlay").innerText = "読み取り中...";
-      }, 3000);
-    };
+        // 表示とlocalStorage保存
+        document.getElementById("overlay").textContent = `✅ ${code} を読み取りました`;
 
-    const html5QrCode = new Html5Qrcode("reader");
-    const config = {
-      fps: 10,
-      qrbox: { width: 250, height: 100 },  // 横長
-      aspectRatio: 1.77
-    };
+        const list = JSON.parse(localStorage.getItem("janList") || "[]");
+        if (!list.find(item => item.jan === code)) {
+          list.unshift({ jan: code, name: "商品_" + code.slice(-4) });
+          localStorage.setItem("janList", JSON.stringify(list));
+        }
 
-    html5QrCode.start(
-      { facingMode: "environment" },  // 背面カメラ指定
-      config,
-      onScanSuccess
-    ).catch(err => {
-      document.getElementById("overlay").innerText = "❌ カメラ起動失敗";
-      console.error(err);
-    });
+        setTimeout(() => {
+          lastScanned = "";
+          document.getElementById("overlay").textContent = "📡 読み取り中...";
+        }, 3000);
+      });
+    }
+
+    startScanner();
   </script>
 </body>
 </html>
