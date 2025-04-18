@@ -11,6 +11,7 @@
       padding: 0;
       overflow: hidden;
       height: 100%;
+      background: black;
     }
     #reader {
       position: fixed;
@@ -28,12 +29,13 @@
       font-size: 1.5em;
       padding: 10px;
       text-align: center;
+      z-index: 10;
     }
     button {
       position: fixed;
       top: 10px;
       right: 10px;
-      padding: 10px;
+      padding: 10px 15px;
       font-size: 1em;
       z-index: 10;
     }
@@ -53,7 +55,7 @@
       lastScanned = decodedText;
       overlay.textContent = `✅ ${decodedText} を読み取りました`;
 
-      // 仮の商品名保存
+      // 仮の商品名をローカル保存
       const list = JSON.parse(localStorage.getItem("janList") || "[]");
       if (!list.find(item => item.jan === decodedText)) {
         list.unshift({ jan: decodedText, name: "商品_" + decodedText.slice(-4) });
@@ -66,11 +68,11 @@
       { facingMode: "environment" },
       {
         fps: 10,
-        qrbox: { width: 300, height: 100 },
+        qrbox: { width: 350, height: 80 },  // ⬅ 横長の読み取り枠
         formatsToSupport: [ Html5QrcodeSupportedFormats.EAN_13 ]
       },
       onScanSuccess,
-      (errorMessage) => {}
+      (errorMessage) => {}  // 無視
     );
   </script>
 </body>
